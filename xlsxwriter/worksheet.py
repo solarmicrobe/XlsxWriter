@@ -1433,7 +1433,7 @@ class Worksheet(xmlwriter.XMLwriter):
 
     @convert_range_args
     def merge_range(self, first_row, first_col, last_row, last_col,
-                    data, cell_format=None):
+                    data, cell_format=None, *args):
         """
         Merge a range of cells.
 
@@ -1473,7 +1473,7 @@ class Worksheet(xmlwriter.XMLwriter):
         self.merge.append([first_row, first_col, last_row, last_col])
 
         # Write the first cell
-        self.write(first_row, first_col, data, cell_format)
+        self.write(first_row, first_col, data, cell_format, *args)
 
         # Pad out the rest of the area with formatted blank cells.
         for row in range(first_row, last_row + 1):

@@ -136,3 +136,53 @@ class TestAssembleWorksheet(unittest.TestCase):
         got = _xml_to_list(fh.getvalue())
 
         self.assertEqual(got, exp)
+
+    def test_assemble_xml_file_with_url(self):
+        """Test merged cell range"""
+        self.maxDiff = None
+
+        fh = StringIO()
+        worksheet = Worksheet()
+        worksheet._set_filehandle(fh)
+        worksheet.str_table = SharedStringTable()
+        worksheet.select()
+        cell_format = Format({'xf_index': 1})
+
+        worksheet.merge_range(0, 0, 1, 1, 'https://github.com/jmcnamara/XlsxWriter', cell_format, 'Xlsxwriter', 'url')
+
+        worksheet.select()
+        worksheet._assemble_xml_file()
+
+        exp = _xml_to_list("""
+                <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+                <worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships">
+                  <dimension ref="A1:B2"/>
+                  <sheetViews>
+                    <sheetView tabSelected="1" workbookViewId="0"/>
+                  </sheetViews>
+                  <sheetFormatPr defaultRowHeight="15"/>
+                  <sheetData>
+                    <row r="1" spans="1:2">
+                      <c r="A1" s="1" t="s">
+                        <v>0</v>
+                      </c>
+                      <c r="B1" s="1"/>
+                    </row>
+                    <row r="2" spans="1:2">
+                      <c r="A2" s="1"/>
+                      <c r="B2" s="1"/>
+                    </row>
+                  </sheetData>
+                  <mergeCells count="1">
+                    <mergeCell ref="A1:B2"/>
+                  </mergeCells>
+                  <hyperlinks>
+                    <hyperlink ref="A1" r:id="rId1" tooltip="url"/>
+                  </hyperlinks>
+                  <pageMargins left="0.7" right="0.7" top="0.75" bottom="0.75" header="0.3" footer="0.3"/>
+                </worksheet>
+                """)
+
+        got = _xml_to_list(fh.getvalue())
+
+        self.assertEqual(got, exp)
